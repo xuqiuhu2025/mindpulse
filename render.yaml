@@ -1,0 +1,15 @@
+# Render Blueprint：一键部署 MindPulse 后端（免费层）
+# 部署入口：https://render.com/deploy?repo=https://github.com/xuqiuhu2025/mindpulse
+services:
+  - type: web
+    name: mindpulse-backend
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MINDPULSE_ENVIRONMENT
+        value: production
+      - key: MINDPULSE_LLM_PROVIDER
+        value: offline
+      - key: MINDPULSE_LOG_LEVEL
+        value: INFO
