@@ -9,17 +9,16 @@ import SwiftData
 enum TestSupport {
     static func makeInMemoryContainer() throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        // 与 MindPulseApp 保持一致：使用可变参数签名（该 SDK 无数组重载）
         return try ModelContainer(
-            for: [
-                ConversationModel.self,
-                MessageModel.self,
-                MoodEntryModel.self,
-                ConsentRecordModel.self,
-                HealthSnapshotModel.self,
-                SafetyEventModel.self,
-                AppPreferencesModel.self,
-            ],
-            configurations: [config]
+            for: ConversationModel.self,
+                 MessageModel.self,
+                 MoodEntryModel.self,
+                 ConsentRecordModel.self,
+                 HealthSnapshotModel.self,
+                 SafetyEventModel.self,
+                 AppPreferencesModel.self,
+            configurations: config
         )
     }
 
