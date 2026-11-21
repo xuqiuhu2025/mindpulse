@@ -108,8 +108,9 @@ final class ChatService: ObservableObject {
         )
         guard let latest = (try? context.fetch(descriptor))?.first else { return }
         conversationID = latest.id
+        let latestID = latest.id // #Predicate 只能捕获值类型
         let messageDescriptor = FetchDescriptor<MessageModel>(
-            predicate: #Predicate { $0.conversationID == latest.id },
+            predicate: #Predicate { $0.conversationID == latestID },
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
         let rows = (try? context.fetch(messageDescriptor)) ?? []

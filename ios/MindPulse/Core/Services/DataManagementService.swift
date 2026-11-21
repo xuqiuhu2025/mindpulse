@@ -26,8 +26,9 @@ final class DataManagementService: ObservableObject {
         let convs = try context.fetch(FetchDescriptor<ConversationModel>())
         var convList: [[String: Any]] = []
         for conv in convs {
+            let convID = conv.id // #Predicate 只能捕获值类型
             let msgs = try context.fetch(FetchDescriptor<MessageModel>(
-                predicate: #Predicate { $0.conversationID == conv.id },
+                predicate: #Predicate { $0.conversationID == convID },
                 sortBy: [SortDescriptor(\.createdAt, order: .forward)]
             ))
             convList.append([
