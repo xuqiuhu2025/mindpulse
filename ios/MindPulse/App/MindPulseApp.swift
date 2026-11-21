@@ -8,7 +8,7 @@ struct MindPulseApp: App {
 
     init() {
         do {
-            container = try ModelContainer(
+            let modelContainer = try ModelContainer(
                 for: ConversationModel.self,
                      MessageModel.self,
                      MoodEntryModel.self,
@@ -17,10 +17,13 @@ struct MindPulseApp: App {
                      SafetyEventModel.self,
                      AppPreferencesModel.self
             )
+            self.container = modelContainer
+            // StateObject 的 wrappedValue 是 escaping autoclosure，
+            // 只能捕获局部常量，不能捕获未初始化完的 self。
+            _environment = StateObject(wrappedValue: AppEnvironment(container: modelContainer))
         } catch {
             fatalError("无法初始化本地数据库: \(error)")
         }
-        _environment = StateObject(wrappedValue: AppEnvironment(container: container))
     }
 
     var body: some Scene {
