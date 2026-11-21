@@ -122,7 +122,7 @@ open MindPulse.xcodeproj
 4. 系统弹窗中选择允许的类别；MindPulse 只读取睡眠时长、静息心率、HRV、步数的**每日汇总**。
 5. 撤销入口：App 内 **设置 → 健康数据** 关闭开关，或 iOS 系统设置 → 健康中管理权限。
 
-> 注意：iOS 源码在本仓库中以源码形式提供；在 Windows 环境无法编译验证，首次构建如遇问题请提 issue。
+> 注意：iOS 源码已通过 CI（macOS runner + iPhone 模拟器）编译与单元测试验证（20 项 XCTest 全部通过）；真机上的 HealthKit 实际数据链路尚未人工验证，首次真机构建如遇问题请提 issue。
 
 ## 环境变量
 
@@ -170,7 +170,7 @@ xcodebuild test -project MindPulse.xcodeproj -scheme MindPulse \
 - 无账户体系（伪匿名 device-id）：换设备不迁移数据。
 - 主动关心引擎的阈值是工程默认值，未经临床验证。
 - 真实 LLM 场景下模型仍可能输出不完美内容：有输出侧二次筛查兜底，但上线前建议人工评估。
-- iOS 源码未在 CI 之外人工验证过真机运行（CI 中标记为尽力而为）。
+- iOS 单元测试已在 CI（macOS 模拟器）通过；真机 HealthKit 实数据链路仍待人工验证。
 - 暂不支持语音、图片、多语言界面。
 
 ## 未来计划
