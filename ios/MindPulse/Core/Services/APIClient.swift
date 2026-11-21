@@ -21,7 +21,7 @@ protocol ChatAPI: Sendable {
 ///   客户端没有任何密钥（有单元测试断言这一点）。
 /// - 除本地回环（127.0.0.1/localhost）外强制 HTTPS。
 final class APIClient: ChatAPI, @unchecked Sendable {
-    enum APIError: LocalizedError {
+    enum APIError: LocalizedError, Equatable {
         case insecureTransport
         case badStatus(Int)
 
