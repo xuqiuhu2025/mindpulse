@@ -21,7 +21,7 @@ struct CrisisResourcesSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     urgentBanner
-                    body
+                    content
                 }
                 .padding(16)
             }
@@ -42,7 +42,7 @@ struct CrisisResourcesSheet: View {
     }
 
     @ViewBuilder
-    private var body: some View {
+    private var content: some View {
         let info = resources ?? crisis
 
         if info.needCountry {

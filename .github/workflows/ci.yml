@@ -27,8 +27,6 @@ jobs:
   ios-tests:
     name: iOS 单元测试
     runs-on: macos-15
-    # 注意：iOS 侧首次跑通需要人工验证签名/模拟器参数，先标记为尽力而为
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: 安装 XcodeGen

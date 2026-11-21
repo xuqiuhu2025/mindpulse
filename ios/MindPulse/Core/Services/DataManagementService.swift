@@ -14,22 +14,10 @@ final class DataManagementService: ObservableObject {
 
     // MARK: - 导出
 
-    struct ExportEnvelope: Codable {
-        var exportedAt: Date
-        var formatVersion: String
-        var conversations: [[String: Any]]
-        var moodEntries: [[String: Any]]
-        var healthSnapshots: [[String: Any]]
-        var consentRecords: [[String: Any]]
-        var safetyEvents: [[String: Any]]
-    }
-
     func exportAllData() throws -> URL {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        func json(_ value: Double?) -> Any { value ?? NSNull() }
+        func json(_ value: Int?) -> Any { value ?? NSNull() }
 
-        let conversations: [[String: Any]] = []
         var payload: [String: Any] = [
             "exported_at": ISO8601DateFormatter().string(from: Date()),
             "format_version": "1",
@@ -66,10 +54,10 @@ final class DataManagementService: ObservableObject {
         let snapshots = try context.fetch(FetchDescriptor<HealthSnapshotModel>())
         payload["health_snapshots"] = snapshots.map { [
             "date": $0.date,
-            "sleep_hours": $0.sleepHours as Any,
-            "resting_hr": $0.restingHR as Any,
-            "hrv_sdnn": $0.hrvSDNN as Any,
-            "steps": $0.steps as Any,
+            "sleep_hours": json($0.sleepHours),
+            "resting_hr": json($0.restingHR),
+            "hrv_sdnn": json($0.hrvSDNN),
+            "steps": json($0.steps),
         ] }
 
         let consents = try context.fetch(FetchDescriptor<ConsentRecordModel>())
@@ -87,7 +75,6 @@ final class DataManagementService: ObservableObject {
         ] }
 
         let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
-        _ = conversations
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("mindpulse-export-\(Int(Date().timeIntervalSince1970)).json")
         try data.write(to: url, options: .atomic)
