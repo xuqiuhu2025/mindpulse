@@ -231,13 +231,16 @@ struct MoodTrendView: View {
     }
 
     private func narrative(for windowEntries: [MoodEntryModel]) -> String {
-        let average = windowEntries.map(\.score).reduce(0, +) / Double(windowEntries.count)
+        let totalScore = windowEntries.map(\.score).reduce(0, +)
+        let average = Double(totalScore) / Double(windowEntries.count)
         var text = "过去 \(window) 天你主动记录了 \(windowEntries.count) 次心情，平均 \(String(format: "%.1f", average)) 分（满分 10）。"
+
         let previousStart = Calendar.current.date(byAdding: .day, value: -window * 2, to: Date())!
         let previousEnd = Calendar.current.date(byAdding: .day, value: -window, to: Date())!
         let previous = entries.filter { $0.recordedAt >= previousStart && $0.recordedAt < previousEnd }
         if previous.count >= 3 {
-            let previousAverage = previous.map(\.score).reduce(0, +) / Double(previous.count)
+            let previousTotal = previous.map(\.score).reduce(0, +)
+            let previousAverage = Double(previousTotal) / Double(previous.count)
             let diff = average - previousAverage
             let direction = diff > 0 ? "上升" : (diff < 0 ? "下降" : "持平")
             text += " 与上一个 \(window) 天相比大约\(direction) \(String(format: "%.1f", abs(diff))) 分。"
@@ -260,7 +263,9 @@ extension Array where Element == MoodEntryModel {
         }
         .sorted { $0.key < $1.key }
         .map { key, values in
-            DayGroup(date: key, average: values.map(\.score).reduce(0, +) / Double(values.count))
+            let total = values.map(\.score).reduce(0, +)
+            let average = Double(total) / Double(values.count)
+            return DayGroup(date: key, average: average)
         }
     }
 }
