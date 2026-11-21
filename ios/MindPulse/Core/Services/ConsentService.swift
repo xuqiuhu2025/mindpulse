@@ -91,8 +91,11 @@ final class ConsentService: ObservableObject {
 
     private func syncServer(scope: HealthScope, granted: Bool) {
         // 同意状态同步到服务端（尽力而为；本地记录是权威来源）
-        Task { [api] in
-            _ = try? await api.setConsent(scope: scope.serverScope, granted: granted)
-        }
+        Task { await self.syncNow(scope: scope, granted: granted) }
+    }
+
+    /// 真正执行同步的内部方法；拆出来是为了可测试（测试可直接 await）。
+    func syncNow(scope: HealthScope, granted: Bool) async {
+        _ = try? await api.setConsent(scope: scope.serverScope, granted: granted)
     }
 }

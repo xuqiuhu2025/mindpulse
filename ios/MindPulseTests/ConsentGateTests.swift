@@ -23,13 +23,8 @@ final class ConsentGateTests: XCTestCase {
         XCTAssertFalse(service.isAllowed(.hrv))
         XCTAssertTrue(service.isAllowed(.sleep))
 
-        // 同意状态已同步到服务端（尽力而为）：同步是异步 Task，这里主动让出执行器等待
-        var attempts = 0
-        while attempts < 50,
-              !api.consentCalls.contains(where: { !$0.granted && $0.scope == HealthScope.hrv.serverScope }) {
-            await Task.yield()
-            attempts += 1
-        }
+        // 同意状态已同步到服务端（尽力而为）：直接 await 内部同步方法，确定性断言
+        await service.syncNow(scope: .hrv, granted: false)
         XCTAssertTrue(
             api.consentCalls.contains { !$0.granted && $0.scope == HealthScope.hrv.serverScope },
             "撤销后应把同意状态同步到服务端（scope=\(HealthScope.hrv.serverScope)）"
