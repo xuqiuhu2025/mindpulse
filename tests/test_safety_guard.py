@@ -22,6 +22,14 @@ class TestSafe:
         assert guard.classify("今天热死了").level == "safe"
         assert guard.classify("真想弄死这个 bug").level == "safe"
         assert guard.classify("我切菜的时候差点切到自己").level == "safe"
+        # 回归：英文单词内部的 "emo" 子串不能触发 support（线上验证时发现）
+        assert guard.classify("this is a demo").level == "safe"
+        assert guard.classify("demo").level == "safe"
+
+    def test_emo_still_matches_as_standalone_word(self):
+        # 中文语境的 emo 用语仍应命中 support
+        assert guard.classify("我最近很emo").level == "support"
+        assert guard.classify("feeling really emo today").level == "support"
 
 
 class TestSupport:

@@ -88,7 +88,7 @@ SUPPORT_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
         for p in (
             r"抑郁", r"情绪低落", r"很低落", r"一直低落", r"提不起劲", r"提不起兴趣", r"没兴趣(做|了)",
             r"觉得(自己)?没用", r"觉得自己很失败", r"好失败", r"绝望", r"无助", r"撑不下去", r"撑不住",
-            r"绷不住了", r"活着好累", r"生活没意思", r"没意思", r"压抑", r"内耗", r"emo", r"破防",
+            r"绷不住了", r"活着好累", r"生活没意思", r"没意思", r"压抑", r"内耗", r"\bemo\b", r"破防",
             r"depressed", r"depression", r"hopeless", r"worthless", r"empty inside", r"no motivation",
             r"can'?t get out of bed", r"miserable", r"give up", r"what'?s the point",
         )
