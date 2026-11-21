@@ -1,0 +1,28 @@
+name: Build & Push Demo Image
+
+# 构建 backend Docker 镜像并推送到公开镜像仓库，供 Railway/Render 等 PaaS 免授权拉取：
+# - ttl.sh：匿名公开、24 小时有效，用于快速演示部署
+# - ghcr.io：持久副本（默认私有，公开化需在仓库 Packages 页手动设置）
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t ttl.sh/mindpulse-x7k2:24h -t ghcr.io/xuqiuhu2025/mindpulse-backend:latest ./backend
+
+      - name: Push to ttl.sh (public, anonymous, valid 24h)
+        run: docker push ttl.sh/mindpulse-x7k2:24h
+
+      - name: Push to ghcr.io (durable copy)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push ghcr.io/xuqiuhu2025/mindpulse-backend:latest
