@@ -85,20 +85,18 @@ final class DataManagementService: ObservableObject {
     // MARK: - 删除
 
     func deleteAllLocalData() throws {
-        for type in [
-            MessageModel.self,
-            ConversationModel.self,
-            MoodEntryModel.self,
-            HealthSnapshotModel.self,
-            ConsentRecordModel.self,
-            SafetyEventModel.self,
-            AppPreferencesModel.self,
-        ] {
-            let rows = try context.fetch(FetchDescriptor(type))
-            for row in rows {
+        func deleteAll<T: PersistentModel>(_ type: T.Type) throws {
+            for row in try context.fetch(FetchDescriptor<T>()) {
                 context.delete(row)
             }
         }
+        try deleteAll(MessageModel.self)
+        try deleteAll(ConversationModel.self)
+        try deleteAll(MoodEntryModel.self)
+        try deleteAll(HealthSnapshotModel.self)
+        try deleteAll(ConsentRecordModel.self)
+        try deleteAll(SafetyEventModel.self)
+        try deleteAll(AppPreferencesModel.self)
         try context.save()
     }
 

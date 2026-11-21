@@ -3,8 +3,8 @@ import SwiftUI
 /// 主动关心卡片：必须说明“为什么出现这条提示”，并提供忽略/关闭入口。
 struct CareSuggestionCard: View {
     var suggestion: CareSuggestionDTO?
-    var local: CareEvaluation?
-    var message: String
+    var local: CareEvaluation? = nil
+    var message: String = ""
 
     @EnvironmentObject private var environment: AppEnvironment
     @EnvironmentObject private var care: CareCenter
@@ -19,7 +19,7 @@ struct CareSuggestionCard: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(Theme.accent)
 
-                Text(message)
+                Text(displayMessage)
                     .font(.subheadline)
 
                 DisclosureGroup(isExpanded: $showReasons) {
@@ -61,6 +61,10 @@ struct CareSuggestionCard: View {
             }
             .cardStyle()
         }
+    }
+
+    private var displayMessage: String {
+        suggestion?.message ?? (local?.message ?? message)
     }
 
     private var reasons: [String] {

@@ -98,6 +98,17 @@ final class APIClient: ChatAPI, @unchecked Sendable {
 
     // MARK: ChatAPI
 
+    private struct ClearChatBodyDTO: Codable {
+        var conversationId: String?
+        enum CodingKeys: String, CodingKey {
+            case conversationId = "conversation_id"
+        }
+    }
+
+    private struct DismissBodyDTO: Codable { var scope: String }
+
+    private struct ConsentBodyDTO: Codable { var scope: String; var granted: Bool }
+
     func sendChat(_ chatRequest: ChatRequestDTO) async throws -> ChatResponseDTO {
         let request = try makeRequest(
             path: "/api/chat",
@@ -108,7 +119,7 @@ final class APIClient: ChatAPI, @unchecked Sendable {
     }
 
     func clearChat(_ conversationId: String?) async throws -> Int {
-        let body = try encode(["conversation_id": conversationId])
+        let body = try encode(ClearChatBodyDTO(conversationId: conversationId))
         let request = try makeRequest(path: "/api/chat/clear", method: "POST", body: body)
         let result = try await send([String: Int].self, request: request)
         return result["cleared_messages"] ?? 0
@@ -129,13 +140,13 @@ final class APIClient: ChatAPI, @unchecked Sendable {
     }
 
     func dismissCare(scope: String) async throws {
-        let body = try encode(["scope": scope])
+        let body = try encode(DismissBodyDTO(scope: scope))
         let request = try makeRequest(path: "/api/care/dismiss", method: "POST", body: body)
         _ = try await send(CareSettingsDTO.self, request: request)
     }
 
     func setConsent(scope: String, granted: Bool) async throws {
-        let body = try encode(["scope": scope, "granted": granted])
+        let body = try encode(ConsentBodyDTO(scope: scope, granted: granted))
         let request = try makeRequest(path: "/api/consent", method: "POST", body: body)
         _ = try await send(ConsentRecordDTO.self, request: request)
     }

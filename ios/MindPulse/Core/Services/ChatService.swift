@@ -75,6 +75,11 @@ final class ChatService: ObservableObject {
         }
     }
 
+    /// 用户关闭危机资源页时调用。
+    func dismissCrisis() {
+        activeCrisis = nil
+    }
+
     // MARK: - 本地持久化
 
     private func persistLocal(role: String, content: String, level: String?) {

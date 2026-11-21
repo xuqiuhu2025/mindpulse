@@ -29,7 +29,7 @@ struct ChatView: View {
         }
         .sheet(isPresented: Binding(
             get: { chat.activeCrisis != nil },
-            set: { if !$0 { chat.activeCrisis = nil } }
+            set: { if !$0 { chat.dismissCrisis() } }
         )) {
             if let crisis = chat.activeCrisis {
                 CrisisResourcesSheet(crisis: crisis)
