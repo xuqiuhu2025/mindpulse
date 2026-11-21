@@ -1,0 +1,67 @@
+name: MindPulse
+options:
+  bundleIdPrefix: org.mindpulse
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  MindPulse:
+    type: application
+    platform: iOS
+    sources:
+      - MindPulse
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.mindpulse.app
+        CODE_SIGN_ENTITLEMENTS: MindPulse/MindPulse.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+    info:
+      path: MindPulse/Info.plist
+      properties:
+        CFBundleDisplayName: MindPulse
+        UILaunchScreen: {}
+        ITSAppUsesNonExemptEncryption: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSHealthShareUsageDescription: >-
+          MindPulse 只有在你明确同意后，才会读取睡眠、静息心率、心率变异性与步数的每日汇总，
+          用于你自己的趋势参考。我们不上传或保存原始逐分钟数据，你可以随时在设置中撤销授权。
+        NSHealthUpdateUsageDescription: MindPulse 不会向健康 App 写入任何数据。
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+
+  MindPulseTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - MindPulseTests
+    dependencies:
+      - target: MindPulse
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.mindpulse.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/MindPulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MindPulse
+        BUNDLE_LOADER: $(TEST_HOST)
+
+schemes:
+  MindPulse:
+    build:
+      targets:
+        MindPulse: all
+        MindPulseTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - MindPulseTests

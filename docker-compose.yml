@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    container_name: mindpulse-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # 容器内把 SQLite 放到挂载卷，数据随卷持久化
+      MINDPULSE_DATABASE_URL: sqlite:////data/mindpulse.db
+      MINDPULSE_ENVIRONMENT: production
+    volumes:
+      - mindpulse-data:/data
+    restart: unless-stopped
+
+volumes:
+  mindpulse-data:

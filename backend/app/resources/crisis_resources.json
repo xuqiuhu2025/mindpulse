@@ -1,0 +1,218 @@
+{
+  "meta": {
+    "version": "2026.11",
+    "note": "本文件是开源静态数据。每条资源都带 source 与 verified 字段，发布/合并前必须按 source 人工核对。号码可能变更：请优先使用下方 directories 的国际目录做实时查询，欢迎社区 PR 更新。MindPulse 不承诺任何单一号码永久有效。",
+    "how_to_update": "提交 PR 修改本文件时必须附上来源链接与核对日期（YYYY-MM），并在 docs/SAFETY_DESIGN.md 登记。",
+    "verification_policy": "见 docs/SAFETY_DESIGN.md《危机资源维护流程》"
+  },
+  "universal_directories": [
+    "https://findahelpline.com",
+    "https://www.iasp.info/resources/Crisis_Centres/",
+    "https://befrienders.org"
+  ],
+  "countries": {
+    "CN": {
+      "name": "中国",
+      "emergency_number": "120",
+      "helplines": [
+        {
+          "name": "全国统一心理援助热线 12356",
+          "phone": "12356",
+          "hours": "24 小时",
+          "source": "国家卫生健康委（2025 年起全国启用）",
+          "verified": "2026-11"
+        },
+        {
+          "name": "北京心理危机研究与干预中心热线",
+          "phone": "010-82951332",
+          "hours": "24 小时",
+          "source": "北京心理危机研究与干预中心",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "US": {
+      "name": "United States",
+      "emergency_number": "911",
+      "helplines": [
+        {
+          "name": "988 Suicide & Crisis Lifeline",
+          "phone": "988",
+          "hours": "24/7 (call or text)",
+          "source": "https://988lifeline.org",
+          "verified": "2026-11"
+        },
+        {
+          "name": "Crisis Text Line",
+          "phone": "text HOME to 741741",
+          "hours": "24/7",
+          "source": "https://www.crisistextline.org",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "GB": {
+      "name": "United Kingdom",
+      "emergency_number": "999",
+      "helplines": [
+        {
+          "name": "Samaritans",
+          "phone": "116 123",
+          "hours": "24/7 (free)",
+          "source": "https://www.samaritans.org",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "CA": {
+      "name": "Canada",
+      "emergency_number": "911",
+      "helplines": [
+        {
+          "name": "9-8-8 Suicide Crisis Helpline",
+          "phone": "988",
+          "hours": "24/7 (call or text)",
+          "source": "https://988.ca",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "AU": {
+      "name": "Australia",
+      "emergency_number": "000",
+      "helplines": [
+        {
+          "name": "Lifeline",
+          "phone": "13 11 14",
+          "hours": "24/7",
+          "source": "https://www.lifeline.org.au",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "NZ": {
+      "name": "New Zealand",
+      "emergency_number": "111",
+      "helplines": [
+        {
+          "name": "1737 Need to talk?",
+          "phone": "1737",
+          "hours": "24/7 (call or text)",
+          "source": "https://1737.org.nz",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "JP": {
+      "name": "日本",
+      "emergency_number": "119",
+      "helplines": [
+        {
+          "name": "いのちの電話（Navi Dial）",
+          "phone": "0570-783-556",
+          "hours": "24 小时（部分时段收费）",
+          "source": "https://www.suicidewithbe-frienders.org",
+          "verified": "2026-11"
+        },
+        {
+          "name": "TELL Lifeline（英语）",
+          "phone": "03-5774-0992",
+          "hours": "9:00-23:00 每日",
+          "source": "https://telljp.com/lifeline",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "KR": {
+      "name": "대한민국",
+      "emergency_number": "119",
+      "helplines": [
+        {
+          "name": "자살예방상담전화 109",
+          "phone": "109",
+          "hours": "24 시간",
+          "source": "보건복지부（2024 年起全国统一）",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "DE": {
+      "name": "Deutschland",
+      "emergency_number": "112",
+      "helplines": [
+        {
+          "name": "TelefonSeelsorge",
+          "phone": "0800 111 0 111",
+          "hours": "24/7 (kostenlos)",
+          "source": "https://www.telefonseelsorge.de",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "FR": {
+      "name": "France",
+      "emergency_number": "112",
+      "helplines": [
+        {
+          "name": "3114 Numéro national de prévention du suicide",
+          "phone": "3114",
+          "hours": "24/7 (gratuit)",
+          "source": "https://3114.fr",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "ES": {
+      "name": "España",
+      "emergency_number": "112",
+      "helplines": [
+        {
+          "name": "Línea 024 atención a la conducta suicida",
+          "phone": "024",
+          "hours": "24/7 (gratuita)",
+          "source": "https://www.024.es",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "BR": {
+      "name": "Brasil",
+      "emergency_number": "192",
+      "helplines": [
+        {
+          "name": "CVV Centro de Valorização da Vida",
+          "phone": "188",
+          "hours": "24h (ligação gratuita)",
+          "source": "https://cvv.org.br",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "IN": {
+      "name": "India",
+      "emergency_number": "112",
+      "helplines": [
+        {
+          "name": "Tele-MANAS",
+          "phone": "14416",
+          "hours": "24/7",
+          "source": "Ministry of Health & Family Welfare (telemanas.mohfw.gov.in)",
+          "verified": "2026-11"
+        }
+      ]
+    },
+    "SG": {
+      "name": "Singapore",
+      "emergency_number": "999",
+      "helplines": [
+        {
+          "name": "SOS Samaritans of Singapore",
+          "phone": "1767",
+          "hours": "24/7",
+          "source": "https://www.sos.org.sg",
+          "verified": "2026-11"
+        }
+      ]
+    }
+  }
+}

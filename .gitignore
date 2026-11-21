@@ -1,0 +1,49 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ===== 数据库与本地数据（绝不提交）=====
+*.db
+*.sqlite
+*.sqlite3
+mindpulse.db
+backend/mindpulse.db
+*.db-journal
+
+# ===== 密钥与本地配置（绝不提交）=====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+Secrets.xcconfig
+google-services.json
+
+# ===== iOS / Xcode =====
+ios/*.xcodeproj
+ios/DerivedData/
+build/
+Build/
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.ipa
+*.dSYM.zip
+
+# ===== Node / 杂项 =====
+node_modules/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

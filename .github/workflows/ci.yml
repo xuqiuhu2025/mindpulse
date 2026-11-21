@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend-tests:
+    name: 后端测试与密钥扫描
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: 安装依赖
+        run: pip install -r backend/requirements.txt
+      - name: 密钥扫描
+        run: python scripts/check_no_secrets.py
+      - name: Prompt 契约与全部测试
+        run: pytest -q --cov=backend/app --cov-report=term-missing
+
+  ios-tests:
+    name: iOS 单元测试
+    runs-on: macos-15
+    # 注意：iOS 侧首次跑通需要人工验证签名/模拟器参数，先标记为尽力而为
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+      - name: 生成 Xcode 工程
+        run: cd ios && xcodegen generate
+      - name: 运行 iOS 单元测试
+        run: |
+          xcodebuild test \
+            -project ios/MindPulse.xcodeproj \
+            -scheme MindPulse \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -skipMacroValidation \
+            | xcbeautify --renderer github-actions || exit 1
