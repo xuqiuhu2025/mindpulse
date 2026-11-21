@@ -35,9 +35,10 @@ jobs:
         run: cd ios && xcodegen generate
       - name: 运行 iOS 单元测试
         run: |
+          set -o pipefail
           xcodebuild test \
             -project ios/MindPulse.xcodeproj \
             -scheme MindPulse \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -skipMacroValidation \
-            | xcbeautify --renderer github-actions || exit 1
+            | xcbeautify --renderer github-actions

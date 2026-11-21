@@ -10,13 +10,15 @@ enum TestSupport {
     static func makeInMemoryContainer() throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         return try ModelContainer(
-            for: ConversationModel.self,
-                 MessageModel.self,
-                 MoodEntryModel.self,
-                 ConsentRecordModel.self,
-                 HealthSnapshotModel.self,
-                 SafetyEventModel.self,
-                 AppPreferencesModel.self,
+            for: [
+                ConversationModel.self,
+                MessageModel.self,
+                MoodEntryModel.self,
+                ConsentRecordModel.self,
+                HealthSnapshotModel.self,
+                SafetyEventModel.self,
+                AppPreferencesModel.self,
+            ],
             configurations: [config]
         )
     }
