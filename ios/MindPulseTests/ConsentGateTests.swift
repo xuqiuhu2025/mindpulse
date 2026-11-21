@@ -5,7 +5,7 @@ import SwiftData
 /// 场景 6（客户端侧）：撤销 HealthKit 授权立即生效；同意记录留痕。
 @MainActor
 final class ConsentGateTests: XCTestCase {
-    func testGrantThenRevoke_updatesAllowedScopes() throws {
+    func testGrantThenRevoke_updatesAllowedScopes() async throws {
         let container = try TestSupport.makeInMemoryContainer()
         let api = MockChatAPI(response: MockChatAPI.safeResponse())
         let service = ConsentService(context: container.mainContext, api: api)
@@ -23,9 +23,17 @@ final class ConsentGateTests: XCTestCase {
         XCTAssertFalse(service.isAllowed(.hrv))
         XCTAssertTrue(service.isAllowed(.sleep))
 
-        // 同意状态已同步到服务端（尽力而为）
-        let revokedCalls = api.consentCalls.filter { !$0.granted }
-        XCTAssertTrue(revokedCalls.contains { $0.scope == HealthScope.hrv.serverScope })
+        // 同意状态已同步到服务端（尽力而为）：同步是异步 Task，这里主动让出执行器等待
+        var attempts = 0
+        while attempts < 50,
+              !api.consentCalls.contains(where: { !$0.granted && $0.scope == HealthScope.hrv.serverScope }) {
+            await Task.yield()
+            attempts += 1
+        }
+        XCTAssertTrue(
+            api.consentCalls.contains { !$0.granted && $0.scope == HealthScope.hrv.serverScope },
+            "撤销后应把同意状态同步到服务端（scope=\(HealthScope.hrv.serverScope)）"
+        )
     }
 
     func testRevokePersistedWithTimestamp() throws {
