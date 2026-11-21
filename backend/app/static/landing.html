@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindPulse — 情绪支持原型 Demo</title>
+<style>
+  :root { --accent:#5c8c73; --bg:#f7f6f0; --card:#ffffff; --ink:#2b2f2a; --muted:#6b7268; --urgent:#e06b54; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+  .wrap { max-width:720px; margin:0 auto; padding:32px 16px 48px; }
+  header h1 { font-size:28px; letter-spacing:.5px; }
+  header h1 .leaf { color:var(--accent); }
+  header p.sub { color:var(--muted); margin-top:6px; }
+  .card { background:var(--card); border-radius:16px; padding:18px 20px; margin-top:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .disclaimer { border-left:4px solid #e0b45c; background:#fdf6e3; }
+  .disclaimer strong { display:block; margin-bottom:4px; }
+  .disclaimer small { color:var(--muted); }
+  .crisis { border-left:4px solid var(--urgent); }
+  .crisis a { color:var(--urgent); }
+  .status { display:flex; align-items:center; gap:8px; font-size:14px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#ccc; }
+  .dot.ok { background:var(--accent); }
+  .dot.bad { background:var(--urgent); }
+  #chat { margin-top:16px; }
+  #messages { display:flex; flex-direction:column; gap:10px; max-height:380px; overflow-y:auto; padding:4px 2px; }
+  .bubble { padding:10px 14px; border-radius:16px; max-width:86%; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+  .user { align-self:flex-end; background:var(--accent); color:#fff; }
+  .assistant { align-self:flex-start; background:#eef1ec; }
+  .assistant.urgent { background:#fdeae5; border:1px solid var(--urgent); }
+  .meta { align-self:center; font-size:12px; color:var(--muted); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; }
+  .chips button { border:1px solid var(--accent); background:#fff; color:var(--accent); border-radius:999px; padding:6px 14px; cursor:pointer; font-size:14px; }
+  .composer { display:flex; gap:10px; margin-top:14px; }
+  .composer textarea { flex:1; resize:none; border:1px solid #d8d8d2; border-radius:12px; padding:10px 12px; font:inherit; }
+  .composer button { background:var(--accent); color:#fff; border:0; border-radius:12px; padding:0 22px; cursor:pointer; font-size:15px; }
+  .composer button:disabled { opacity:.5; cursor:not-allowed; }
+  .crisis-box { margin-top:10px; padding:12px; border-radius:12px; background:#fdeae5; font-size:14px; }
+  .crisis-box b { color:var(--urgent); }
+  footer { margin-top:24px; font-size:13px; color:var(--muted); text-align:center; line-height:1.8; }
+  footer a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="leaf">🌱</span> MindPulse <span style="font-size:16px;color:var(--muted)">Demo</span></h1>
+    <p class="sub">情绪支持原型 · 以你的明确同意为前提 · 温和陪伴 + 真实世界的危机指引</p>
+  </header>
+
+  <div class="card disclaimer">
+    <strong>MindPulse 提供情绪支持，不提供医学诊断或紧急服务</strong>
+    <small>本 Demo 运行在 offline 兜底模式（确定性共情模板，未接真实大模型）。它不是医疗产品，不能替代医生或心理咨询师。</small>
+  </div>
+
+  <div class="card crisis">
+    <strong style="display:block;margin-bottom:4px;">如果你现在处于立即危险中</strong>
+    请立即联系当地急救服务或前往最近的急诊室。全球求助目录：
+    <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> ·
+    <a href="https://www.iasp.info/resources/Crisis_Centres/" target="_blank" rel="noopener">IASP 危机中心目录</a>
+  </div>
+
+  <div class="card status">
+    <span class="dot" id="dot"></span>
+    <span id="statusText">正在检查 API 状态…</span>
+    <span style="margin-left:auto"><a href="/docs" target="_blank" rel="noopener">API 文档 (Swagger) →</a></span>
+  </div>
+
+  <div class="card" id="chat">
+    <div id="messages">
+      <div class="meta" id="greeting"></div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="composer">
+      <textarea id="input" rows="2" placeholder="说点什么…（回车发送，Shift+回车换行）"></textarea>
+      <button id="send">发送</button>
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:var(--muted)">
+      消息只用于本次演示会话；对话与设备标识可通过 <code>DELETE /api/data/all</code> 随时删除。
+      试试输入让你低落的内容，观察 SafetyGuard 如何切换到危机脚本。
+    </p>
+  </div>
+
+  <footer>
+    开源仓库：<a href="https://github.com/xuqiuhu2025/mindpulse" target="_blank" rel="noopener">github.com/xuqiuhu2025/mindpulse</a><br>
+    SafetyGuard 风险分级独立于 LLM · crisis 脚本版本化管理 · 健康数据只在明确授权后按天聚合
+  </footer>
+</div>
+
+<script>
+  var did = localStorage.getItem("mp_did");
+  if (!did) { did = "web-" + Math.random().toString(36).slice(2, 12); localStorage.setItem("mp_did", did); }
+
+  fetch("/health").then(function(r){ return r.json(); }).then(function(d){
+    document.getElementById("dot").className = "dot ok";
+    document.getElementById("statusText").textContent = "API 在线 · v" + d.version + " · offline 兜底模式";
+  }).catch(function(){
+    document.getElementById("dot").className = "dot bad";
+    document.getElementById("statusText").textContent = "API 暂不可达（服务可能正在休眠唤醒中，请刷新重试）";
+  });
+
+  var hour = new Date().getHours();
+  var part = hour < 12 ? "上午好" : (hour < 18 ? "下午好" : "晚上好");
+  document.getElementById("greeting").textContent = part + "。这里是 MindPulse 的演示对话（当前为 offline 模式，回复是预设的共情模板）。";
+
+  var chips = ["我今天压力很大", "我想整理一下思绪", "我只是想找个人聊聊"];
+  var chipBox = document.getElementById("chips");
+  chips.forEach(function(c){
+    var b = document.createElement("button");
+    b.textContent = c;
+    b.onclick = function(){ document.getElementById("input").value = c; send(); };
+    chipBox.appendChild(b);
+  });
+
+  var msgBox = document.getElementById("messages");
+  var input = document.getElementById("input");
+  var sendBtn = document.getElementById("send");
+
+  function bubble(cls, text){
+    var d = document.createElement("div");
+    d.className = "bubble " + cls;
+    d.textContent = text;
+    msgBox.appendChild(d);
+    msgBox.scrollTop = msgBox.scrollHeight;
+    return d;
+  }
+
+  function showCrisis(crisis){
+    var box = document.createElement("div");
+    box.className = "crisis-box";
+    var html = "";
+    if (crisis.need_country) {
+      html += "<b>为了给你当地经过验证的支持资源，请选择你所在的国家或地区：</b><br>";
+      var sel = "<select id='cc' style='margin-top:6px;padding:6px;font-size:14px'>" +
+        ["CN:中国","US:美国","GB:英国","CA:加拿大","AU:澳大利亚","JP:日本","KR:韩国","DE:德国","FR:法国","BR:巴西","IN:印度","SG:新加坡"]
+        .map(function(o){ var p=o.split(":"); return "<option value='"+p[0]+"'>"+p[1]+"</option>"; }).join("") + "</select>";
+      html += sel + " <button id='ccbtn' style='padding:6px 14px;cursor:pointer'>查询当地资源</button>";
+    } else {
+      html += "<b>当地急救电话：" + (crisis.emergency_number || "见下") + "</b><br>";
+      crisis.resources.forEach(function(r){
+        html += "· " + r.name + (r.phone ? " — " + r.phone : "") + (r.hours ? "（" + r.hours + "）" : "") + "<br>";
+      });
+    }
+    html += "<br>国际目录：<a href='" + crisis.directories[0] + "' target='_blank' rel='noopener'>findahelpline.com</a>";
+    box.innerHTML = html;
+    msgBox.appendChild(box);
+    if (crisis.need_country) {
+      document.getElementById("ccbtn").onclick = function(){
+        var cc = document.getElementById("cc").value;
+        fetch("/api/crisis/resources?country=" + cc).then(function(r){ return r.json(); }).then(function(d){
+          box.innerHTML = "<b>当地急救电话：" + d.emergency_number + "</b><br>" +
+            d.resources.map(function(r){ return "· " + r.name + (r.phone ? " — " + r.phone : "") + "（来源 " + (r.source||"") + "，核对 " + (r.verified||"") + "）"; }).join("<br>") +
+            "<br><br>号码为静态数据，使用前请核对当地最新信息。";
+        });
+      };
+    }
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
+  function send(){
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = ""; sendBtn.disabled = true;
+    bubble("user", text);
+    var thinking = bubble("meta", "正在回应…");
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Device-ID": did },
+      body: JSON.stringify({ message: text })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      thinking.remove();
+      var urgent = d.safety && d.safety.level === "urgent";
+      bubble(urgent ? "assistant urgent" : "assistant", d.reply);
+      if (urgent && d.safety.crisis) showCrisis(d.safety.crisis);
+      if (d.safety && d.safety.prompt_injection) {
+        bubble("meta", "（检测到提示词注入尝试，已拒绝并记录）");
+      }
+    }).catch(function(){
+      thinking.remove();
+      bubble("meta", "网络异常，请稍后重试。");
+    }).finally(function(){ sendBtn.disabled = false; input.focus(); });
+  }
+
+  sendBtn.onclick = send;
+  input.addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
+from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -100,13 +101,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def liveness() -> dict:
         return {"status": "ok", "app": "mindpulse", "version": "0.1.0"}
 
-    @app.get("/", tags=["meta"])
-    def root() -> dict:
-        return {
-            "app": "MindPulse API",
-            "notice": "MindPulse 提供情绪支持，不提供医学诊断或紧急服务",
-            "docs": "/docs",
-        }
+    @app.get("/", tags=["meta"], include_in_schema=False)
+    def root():
+        """交互式欢迎页：内置聊天演示（offline 模式），可直接在浏览器体验分级与危机脚本。"""
+        landing = Path(__file__).resolve().parent / "static" / "landing.html"
+        return Response(
+            content=landing.read_text(encoding="utf-8"),
+            media_type="text/html",
+            headers={"Cache-Control": "no-store"},
+        )
 
     return app
 
