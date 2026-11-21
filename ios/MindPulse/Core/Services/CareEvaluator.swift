@@ -37,6 +37,14 @@ struct CareSettingsConfig {
 }
 
 enum CareEvaluator {
+    private struct Check {
+        let label: String
+        let scope: HealthScope?
+        let values: [Double]
+        let isRiseDelta: Bool
+        let threshold: Double
+    }
+
     static func evaluate(
         snapshots: [MetricDaySnapshot],
         grantedScopes: Set<HealthScope>,
@@ -52,14 +60,13 @@ enum CareEvaluator {
         var deviatedLabels: [String] = []
         var sustainedLabels: [String] = []
 
-        let metricChecks: [(label: String, scope: HealthScope?, values: [Double], kind: Kind, threshold: Double)] = [
-            ("睡眠", .sleep, sorted.compactMap(\.sleepHours), .dropByRatio(settings.sleepDropRatio), settings.sleepDropRatio),
-            ("静息心率", .restingHeartRate, sorted.compactMap(\.restingHR), .riseByDelta(settings.restingHRDelta), settings.restingHRDelta),
-            ("心率变异性", .hrv, sorted.compactMap(\.hrvSDNN), .dropByRatio(settings.hrvDropRatio), settings.hrvDropRatio),
-            ("活动量", .steps, sorted.compactMap { $0.steps.map(Double.init) }, .dropByRatio(settings.stepsDropRatio), settings.stepsDropRatio),
-        ]
+        var checks: [Check] = []
+        checks.append(Check(label: "睡眠", scope: .sleep, values: sorted.compactMap(\.sleepHours), isRiseDelta: false, threshold: settings.sleepDropRatio))
+        checks.append(Check(label: "静息心率", scope: .restingHeartRate, values: sorted.compactMap(\.restingHR), isRiseDelta: true, threshold: settings.restingHRDelta))
+        checks.append(Check(label: "心率变异性", scope: .hrv, values: sorted.compactMap(\.hrvSDNN), isRiseDelta: false, threshold: settings.hrvDropRatio))
+        checks.append(Check(label: "活动量", scope: .steps, values: sorted.compactMap { $0.steps.map(Double.init) }, isRiseDelta: false, threshold: settings.stepsDropRatio))
 
-        for check in metricChecks {
+        for check in checks {
             if let scope = check.scope, !grantedScopes.contains(scope) { continue }
             let baseline = Array(check.values.dropLast(settings.recentDays))
             let recent = Array(check.values.suffix(settings.recentDays))
@@ -69,11 +76,10 @@ enum CareEvaluator {
             let recentAvg = recent.reduce(0, +) / Double(recent.count)
 
             let isDeviated: Bool
-            switch check.kind {
-            case .dropByRatio:
-                isDeviated = recentAvg <= baselineAvg * (1 - check.threshold)
-            case .riseByDelta:
+            if check.isRiseDelta {
                 isDeviated = recentAvg >= baselineAvg + check.threshold
+            } else {
+                isDeviated = recentAvg <= baselineAvg * (1 - check.threshold)
             }
             guard isDeviated else { continue }
             deviatedLabels.append(check.label)
@@ -82,10 +88,10 @@ enum CareEvaluator {
             if check.values.count >= settings.sustainedWindowDays {
                 let window = check.values.suffix(settings.sustainedWindowDays)
                 let deviatedDays = window.filter { dayValue in
-                    switch check.kind {
-                    case .dropByRatio: return dayValue <= baselineAvg * (1 - check.threshold)
-                    case .riseByDelta: return dayValue >= baselineAvg + check.threshold
+                    if check.isRiseDelta {
+                        return dayValue >= baselineAvg + check.threshold
                     }
+                    return dayValue <= baselineAvg * (1 - check.threshold)
                 }.count
                 if deviatedDays >= settings.sustainedMinDays {
                     sustainedLabels.append(check.label)
@@ -121,10 +127,5 @@ enum CareEvaluator {
             reasons: reasons,
             metrics: deviatedLabels
         )
-    }
-
-    private enum Kind {
-        case dropByRatio(Double)
-        case riseByDelta(Double)
     }
 }
