@@ -10,8 +10,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 
-# 不以 root 运行
-RUN useradd --create-home mindpulse
+# 不以 root 运行；/data 为容器内默认可写数据目录（docker-compose 会挂载卷）
+RUN useradd --create-home mindpulse \
+    && mkdir -p /data \
+    && chown -R mindpulse:mindpulse /app /data
+ENV MINDPULSE_DATABASE_URL=sqlite:////data/mindpulse.db
 USER mindpulse
 
 EXPOSE 8000
